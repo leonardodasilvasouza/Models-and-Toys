@@ -1,6 +1,6 @@
 # Models-and-Toys
 
-Folowing a Data Analyst Training at Wild Code School, this is the first projet that my colleagues and I have built avec the aim to develop our MySQL and Tableau skills. We took 3 weeks to build this dashboard. 
+Following a Data Analyst Training at Wild Code School, this is the first projet that my colleagues and I have built with the aim to develop our MySQL and Tableau skills. We took 3 weeks to build this dashboard. 
 
 <b>1 - Introduction</b> 
 
@@ -60,3 +60,42 @@ ORDER BY year1, month1, turnover_rank;
   <img align="center" alt="RH-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/deuxmeilleursvendeursmois.png?raw=true">
 </div>
 
+#
+
+- <b>The worst sales each month</b>
+
+~~~~sql
+WITH rank_turnover AS
+(
+SELECT ROUND(SUM(orderdetails.priceeach * orderdetails.quantityOrdered), 0) as turnover,
+CONCAT(employees.firstname , " ", employees.lastname) AS fullname,
+DATE_FORMAT(orders.orderdate, "%M, %Y") as monthyear,
+DATE_FORMAT(orders.orderdate, "%M") as month1,
+DATE_FORMAT(orders.orderdate, "%Y") as year1
+FROM employees
+INNER JOIN customers
+ON employees.employeeNumber = customers.SalesRepEmployeeNumber
+INNER JOIN orders
+ON customers.customerNumber = orders.customerNumber
+INNER JOIN orderdetails
+ON orders.orderNumber = orderdetails.orderNumber
+GROUP BY YEAR(orders.orderdate), MONTH(orders.orderdate), fullname
+ORDER BY YEAR(orders.orderdate), MONTH(orders.orderdate), turnover
+)
+, rank_month AS
+(
+SELECT RANK() OVER (PARTITION BY monthyear ORDER BY turnover) AS turnover_rank,
+monthyear, turnover, year1, month1, fullname
+FROM rank_turnover
+ORDER BY turnover_rank
+)
+
+SELECT turnover_rank, fullname, turnover, month1, year1
+FROM rank_month
+WHERE turnover_rank <= '2'
+ORDER BY year1, month1, turnover_rank;
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="RH-2" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/deuxmoinsbonvendeursmois.png?raw=true">
+</div>
