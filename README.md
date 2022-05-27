@@ -64,8 +64,8 @@ LEFT JOIN monthly_sales_year AS y
 ~~~~
 
 <div style="display: inline_block"><br>
-	<img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/volumeventemoislignevariationbis.png?raw=true">
-	<img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/volumeventemoislignevariation.png?raw=true">
+	<img align="center" alt="SA-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/volumeventemoislignevariationbis.png?raw=true">
+	<img align="center" alt="SA-2" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/volumeventemoislignevariation.png?raw=true">
 </div>
 
 #
@@ -97,7 +97,7 @@ WHERE Classement.Rang =1
 ~~~~
 
 <div style="display: inline_block"><br>
-	<img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/topproduitpays.png?raw=true">
+	<img align="center" alt="SA-3" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/topproduitpays.png?raw=true">
 </div>
 
 #
@@ -115,7 +115,7 @@ ORDER BY total_customers DESC
 ~~~~
 
 <div style="display: inline_block"><br>
-	<img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/nombreclientpays.png?raw=true">
+	<img align="center" alt="SA-4" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/nombreclientpays.png?raw=true">
 </div>
 
 #
@@ -137,7 +137,7 @@ ORDER BY turnover DESC;
 ~~~~
 
 <div style="display: inline_block"><br>
-  <img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/cadeuxderniersmois.png?raw=true">
+  <img align="center" alt="FI-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/cadeuxderniersmois.png?raw=true">
 </div>
 
 #
@@ -178,7 +178,7 @@ ORDER BY to_be_paid DESC;
 ~~~~
 
 <div style="display: inline_block"><br>
-  <img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/commandesnonpayees.png?raw=true">
+  <img align="center" alt="FI-2" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/commandesnonpayees.png?raw=true">
 </div>
 
 #
@@ -237,7 +237,7 @@ INNER JOIN turnover2022 AS c
 ~~~~
 
 <div style="display: inline_block"><br>
-  <img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/caligneproduitanneeencours.png?raw=true">
+  <img align="center" alt="FI-3" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/caligneproduitanneeencours.png?raw=true">
 </div>
 
 #
@@ -294,7 +294,7 @@ INNER JOIN profitRate2022 AS c
 ~~~~
 
 <div style="display: inline_block"><br>
-  <img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/tauxmargeligneproduitanneeencours.png?raw=true">
+  <img align="center" alt="FI-4" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/tauxmargeligneproduitanneeencours.png?raw=true">
 </div>
 
 #
@@ -404,7 +404,7 @@ group by country, annee
 ~~~~
 
 <div style="display: inline_block"><br>
-  <img align="center" alt="LG-4" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/delaisdelivraison.png?raw=true">
+  <img align="center" alt="LG-5" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/delaisdelivraison.png?raw=true">
 </div>
 
 ##
@@ -603,5 +603,5 @@ LIMIT 2;
 ~~~~
 
 <div style="display: inline_block"><br>
-  <img align="center" alt="RH-6" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/flop2vendeursderniermois.png?raw=true">
+  <img align="center" alt="RH-7" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/flop2vendeursderniermois.png?raw=true">
 </div>
