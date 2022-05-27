@@ -20,6 +20,185 @@ For this project we have used Tableau Software and MySQL Workbench
 
 ##
 
+<h1>Finance</h1>
+
+- <b>Sales revenue for the last two months by country</b>
+
+~~~~sql
+SELECT c.country, ROUND(SUM(od.quantityOrdered * od.priceEach) ,0) AS turnover
+FROM orderdetails AS od
+INNER JOIN orders AS o
+	ON o.orderNumber=od.orderNumber
+INNER JOIN customers AS c
+	ON c.customerNumber=o.customerNumber
+WHERE o.orderDate > DATE_ADD(NOW(), INTERVAL -2 MONTH)
+GROUP BY country
+ORDER BY turnover DESC;
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/cadeuxderniersmois.png?raw=true">
+</div>
+
+#
+
+- <b>Unpaid orders</b>
+
+~~~~sql
+WITH total_order_customer AS
+(
+SELECT SUM(orderdetails.priceeach * orderdetails.quantityOrdered) AS totalorder,
+customers.CustomerNumber AS customerNumberOrder
+FROM orderdetails
+INNER JOIN orders
+ON orders.orderNumber = orderdetails.orderNumber
+INNER JOIN customers
+ON customers.customerNumber = orders.CustomerNumber
+GROUP BY customers.CustomerNumber
+)
+, total_payments_customer AS
+(
+SELECT SUM(payments.amount) AS totalpayment,
+customers.CustomerNumber AS customerNumberPayment
+FROM payments
+INNER JOIN customers
+ON customers.customerNumber = payments.CustomerNumber
+GROUP BY customers.CustomerNumber
+)
+
+SELECT c.customerNumber, c.customerName, ROUND(ot.totalorder - tp.totalpayment) as to_be_paid
+FROM customers AS c
+INNER JOIN total_order_customer AS ot
+ON ot.customerNumberOrder=c.customerNumber
+INNER JOIN total_payments_customer AS tp
+ON tp.customerNumberPayment=c.customerNumber
+WHERE ROUND(ot.totalorder - tp.totalpayment)> 0
+GROUP BY c.customerNumber
+ORDER BY to_be_paid DESC;
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/commandesnonpayees.png?raw=true">
+</div>
+
+#
+
+- <b>Sales Revenue by product line of the current year</b>
+
+~~~~sql
+WITH turnover2020 AS (
+		SELECT pl.productLine, p.productName, 
+	ROUND(SUM(od.quantityOrdered * od.priceEach), 0) AS turnover2020
+		FROM productlines AS pl
+		INNER JOIN products AS p
+			ON p.productLine=pl.productLine
+		INNER JOIN orderdetails AS od
+			ON od.productCode=p.productCode
+		INNER JOIN orders AS o
+			ON o.orderNumber=od.orderNumber
+		WHERE YEAR(o.orderDate) = YEAR(DATE_SUB(NOW(), INTERVAL 2 YEAR))
+			AND MONTH(o.orderDate) <= MONTH(NOW())
+		GROUP BY pl.productLine
+		ORDER BY turnover2020 DESC
+), turnover2021 AS (
+		SELECT pl.productLine, p.productName, 
+	ROUND(SUM(od.quantityOrdered * od.priceEach), 0) AS turnover2021
+		FROM productlines AS pl
+		INNER JOIN products AS p
+			ON p.productLine=pl.productLine
+		INNER JOIN orderdetails AS od
+			ON od.productCode=p.productCode
+		INNER JOIN orders AS o
+			ON o.orderNumber=od.orderNumber
+		WHERE YEAR(o.orderDate) = YEAR(DATE_SUB(NOW(), INTERVAL 1 YEAR))
+			AND MONTH(o.orderDate) <= MONTH(NOW())
+		GROUP BY pl.productLine
+		ORDER BY turnover2021 DESC
+), turnover2022 AS (
+		SELECT pl.productLine, p.productName, 
+	ROUND(SUM(od.quantityOrdered * od.priceEach), 0) AS turnover2022
+		FROM productlines AS pl
+		INNER JOIN products AS p
+			ON p.productLine=pl.productLine
+		INNER JOIN orderdetails AS od
+			ON od.productCode=p.productCode
+		INNER JOIN orders AS o
+			ON o.orderNumber=od.orderNumber
+		WHERE YEAR(o.orderDate) = YEAR(NOW())
+		GROUP BY pl.productLine
+		ORDER BY turnover2022 DESC
+)
+SELECT a.productLine, turnover2020, turnover2021, turnover2022
+FROM turnover2020 AS a
+INNER JOIN turnover2021 AS b
+	ON b.productLine=a.productLine
+INNER JOIN turnover2022 AS c
+	ON c.productLine=a.productLine;
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/caligneproduitanneeencours.png?raw=true">
+</div>
+
+#
+
+- <b>Margin rate by product line over the current year</b>
+
+~~~~sql
+WITH profitRate2020 AS (
+		SELECT pl.productLine AS productLine,((ROUND(SUM(od.quantityOrdered * od.priceEach), 0) - ROUND(SUM(p.buyPrice * od.quantityOrdered), 0)) 
+			/ ROUND(SUM(p.buyPrice * od.quantityOrdered), 0)) * 100 AS profitRate2020
+		FROM productlines AS pl
+		INNER JOIN products AS p
+			ON p.productLine=pl.productLine
+		INNER JOIN orderdetails AS od
+			ON od.productCode=p.productCode
+		INNER JOIN orders AS o
+			ON o.orderNumber=od.orderNumber
+		WHERE YEAR(o.orderDate) = YEAR(DATE_SUB(NOW(), INTERVAL 2 YEAR))
+		GROUP BY pl.productLine
+		ORDER BY profitRate2020 DESC
+), profitRate2021 AS (
+		SELECT pl.productLine AS productLine,((ROUND(SUM(od.quantityOrdered * od.priceEach), 0) - ROUND(SUM(p.buyPrice * od.quantityOrdered), 0)) 
+			/ ROUND(SUM(p.buyPrice * od.quantityOrdered), 0)) * 100 AS profitRate2021
+		FROM productlines AS pl
+		INNER JOIN products AS p
+			ON p.productLine=pl.productLine
+		INNER JOIN orderdetails AS od
+			ON od.productCode=p.productCode
+		INNER JOIN orders AS o
+			ON o.orderNumber=od.orderNumber
+		WHERE YEAR(o.orderDate) = YEAR(DATE_SUB(NOW(), INTERVAL 1 YEAR))
+		GROUP BY pl.productLine
+		ORDER BY profitRate2021 DESC
+), profitRate2022 AS (
+		SELECT pl.productLine AS productLine,((ROUND(SUM(od.quantityOrdered * od.priceEach), 0) - ROUND(SUM(p.buyPrice * od.quantityOrdered), 0)) 
+			/ ROUND(SUM(p.buyPrice * od.quantityOrdered), 0)) * 100 AS profitRate2022
+		FROM productlines AS pl
+		INNER JOIN products AS p
+			ON p.productLine=pl.productLine
+		INNER JOIN orderdetails AS od
+			ON od.productCode=p.productCode
+		INNER JOIN orders AS o
+			ON o.orderNumber=od.orderNumber
+		WHERE YEAR(o.orderDate) = YEAR(NOW())
+		GROUP BY pl.productLine
+		ORDER BY profitRate2022 DESC
+)
+SELECT a.productLine, profitRate2020, profitRate2021, profitRate2022
+FROM profitRate2020 AS a
+INNER JOIN profitRate2021 AS b
+	ON b.productLine=a.productLine
+INNER JOIN profitRate2022 AS c
+	ON c.productLine=a.productLine;
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/tauxmargeligneproduitanneeencours.png?raw=true">
+</div>
+
+#
+
 <h1>Logistics</h1>
 
 - <b>Stocks of the five (5) most ordered products</b>
