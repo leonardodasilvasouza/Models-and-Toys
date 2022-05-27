@@ -20,7 +20,117 @@ For this project we have used Tableau Software and MySQL Workbench
 
 ##
 
-<h1>Our Dashboard - Human Resource</h1>
+<h1>Logistics</h1>
+
+- <b>Stocks of the five (5) most ordered products</b>
+
+~~~~sql
+SELECT p.productCode, p.productName, p.quantityInStock
+FROM products AS p
+INNER JOIN orderdetails AS od
+ON p.productCode = od.productCode
+INNER JOIN orders AS o
+ON o.orderNumber=od.orderNumber
+WHERE YEAR(o.orderDate) = YEAR(NOW())
+GROUP BY p.productName
+ORDER BY SUM(od.quantityOrdered) DESC
+LIMIT 5
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/cinqproduitsplusdemandes.png?raw=true">
+</div>
+
+#
+
+- <b>Order Status</b>
+
+~~~~sql
+WITH status_order AS (
+
+SELECT DATE_FORMAT(o.orderDate, '%Y') AS annee, o.status as status_order, COUNT(o.orderNumber) AS total_status_order
+FROM orders AS o
+GROUP BY annee, status_order
+)
+, total_order AS (
+
+SELECT annee, status_order, total_status_order, count(orders.orderNumber) as total_order
+FROM status_order
+INNER JOIN orders
+ON DATE_FORMAT(orders.orderDate, '%Y') = annee
+GROUP BY status_order, annee
+)
+
+SELECT annee, status_order, ROUND((100 * total_status_order) / total_order, 2) as percentage
+FROM total_order
+GROUP BY status_order, annee
+ORDER BY annee
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="LG-2" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/statutdescommandes.png?raw=true">
+</div>
+
+#
+
+- <b>Stock</b>
+
+~~~~sql
+SELECT p.productCode, p.productName, 
+ROUND((((p.quantityInStock+od.quantityOrdered)+p.quantityInStock)/2)/od.quantityOrdered*(DAYOFYEAR(DATE( NOW() )))) AS couvertureStockNbJours
+FROM orderdetails AS od 
+INNER JOIN products AS p
+	ON p.productCode = od.productCode
+INNER JOIN orders AS o
+	ON od.orderNumber = o.orderNumber
+WHERE YEAR(o.orderDate) = YEAR(NOW())
+GROUP BY p.productCode
+ORDER BY couvertureStockNbJours;
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="LG-3" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/couverturedestock.png?raw=true">
+</div>
+
+#
+
+- <b>Late orders</b>
+
+~~~~sql
+SELECT orders.orderDate, orders.requiredDate, orders.shippedDate, customers.customerName, orders.orderNumber
+FROM orders
+INNER JOIN customers
+ON orders.customerNumber = customers.customerNumber
+WHERE orders.requiredDate < orders.shippedDate AND YEAR(orders.orderDate) = YEAR(NOW())
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="LG-4" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/commandesrenretard.png?raw=true">
+</div>
+
+#
+
+- <b>Delivery Time</b>
+
+~~~~sql
+SELECT country, DATE_FORMAT(orderDate, '%Y') AS annee, round(avg(duration), 2) AS average
+from (
+	SELECT orderNumber, orders.orderDate, orders.requiredDate, offices.country, 
+  TIMESTAMPDIFF(day, orders.orderDate, orders.requiredDate) AS duration
+	FROM orders
+		inner join customers on orders.customernumber = customers.customernumber
+		inner join employees on customers.salesrepemployeenumber = employees.employeenumber
+		inner join offices on employees.officecode = offices.officecode) as table1
+group by country, annee
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="LG-4" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/delaisdelivraison.png?raw=true">
+</div>
+
+##
+
+<h1>Human Resource</h1>
 
 - <b>The best sales each month</b>
 
