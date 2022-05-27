@@ -20,7 +20,7 @@ For this project we have used Tableau Software and MySQL Workbench
 
 ##
 
-<h1>Our Dashboard Human Resource</h1>
+<h1>Our Dashboard - Human Resource</h1>
 
 - <b>The best sales each month</b>
 
@@ -98,4 +98,121 @@ ORDER BY year1, month1, turnover_rank;
 
 <div style="display: inline_block"><br>
   <img align="center" alt="RH-2" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/deuxmoinsbonvendeursmois.png?raw=true">
+</div>
+
+#
+
+- <b>Employee by department</b>
+
+~~~~sql
+SELECT jobTitle, COUNT(jobTitle) 
+FROM employees
+GROUP BY jobTitle
+ORDER BY COUNT(jobTitle) DESC;
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="RH-3" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/employesdepartement.png?raw=true">
+</div>
+
+#
+
+- <b>Top two business developers by year</b>
+
+~~~~sql
+WITH rank_turnover AS
+(
+SELECT ROUND(SUM(orderdetails.priceeach * orderdetails.quantityOrdered), 0) as turnover,
+CONCAT(employees.firstname," ", employees.lastname) AS fullname,
+DATE_FORMAT(orders.orderdate, "%Y") as year1
+FROM employees
+INNER JOIN customers
+ON employees.employeeNumber = customers.SalesRepEmployeeNumber
+INNER JOIN orders
+ON customers.customerNumber = orders.customerNumber
+INNER JOIN orderdetails
+ON orders.orderNumber = orderdetails.orderNumber
+GROUP BY YEAR(orders.orderdate), fullname
+ORDER BY YEAR(orders.orderdate), turnover
+)
+, rank_year AS
+(
+SELECT RANK() OVER (PARTITION BY year1 ORDER BY turnover DESC) AS turnover_rank,
+turnover, year1, fullname
+FROM rank_turnover
+ORDER BY turnover_rank DESC
+)
+
+SELECT turnover_rank, fullname, turnover, year1
+FROM rank_year
+WHERE turnover_rank <= '2'
+ORDER BY year1, turnover_rank;
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="RH-4" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/top2vendeursannees.png?raw=true">
+</div>
+
+#
+
+- <b>Number of exployees by country</b>
+
+~~~~sql
+  SELECT off.country, COUNT(off.country) AS nb_of_employees_per_country 
+FROM offices AS off
+LEFT JOIN employees AS e ON off.officeCode = e.officeCode
+GROUP BY off.country
+ORDER BY nb_of_employees_per_country DESC;
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="RH-5" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/top2vendeursannees.png?raw=true">
+</div>
+
+#
+
+- <b>Top two business developers (last month)</b>
+
+~~~~sql
+ SELECT CONCAT(e.firstName, " ", e.lastName) AS fullname, 
+	ROUND(SUM(od.quantityOrdered * od.priceEach), 0) AS turnover
+FROM employees AS e
+INNER JOIN customers AS c
+	ON c.salesRepEmployeeNumber = e.employeeNumber
+INNER JOIN orders AS o
+	ON o.customerNumber = c.customerNumber
+INNER JOIN orderdetails AS od
+	ON od.orderNumber=o.orderNumber
+WHERE YEAR(o.orderDate) = YEAR(NOW()) AND MONTH(o.orderDate) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+GROUP BY fullname
+ORDER BY turnover DESC
+LIMIT 2;
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="RH-6" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/top2vendeursderniermois.png?raw=true">
+</div>
+
+#
+
+- <b>Two worst business developers (last month)</b>
+
+~~~~sql
+SELECT CONCAT(e.firstName, " ", e.lastName) AS fullname, 
+	ROUND(SUM(od.quantityOrdered * od.priceEach), 0) AS turnover
+FROM employees AS e
+INNER JOIN customers AS c
+	ON c.salesRepEmployeeNumber = e.employeeNumber
+INNER JOIN orders AS o
+	ON o.customerNumber = c.customerNumber
+INNER JOIN orderdetails AS od
+	ON od.orderNumber=o.orderNumber
+WHERE YEAR(o.orderDate) = YEAR(NOW()) AND MONTH(o.orderDate) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+GROUP BY fullname
+ORDER BY turnover
+LIMIT 2;
+~~~~
+
+<div style="display: inline_block"><br>
+  <img align="center" alt="RH-6" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/flop2vendeursderniermois.png?raw=true">
 </div>
