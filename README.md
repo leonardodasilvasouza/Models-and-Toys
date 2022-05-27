@@ -20,6 +20,106 @@ For this project we have used Tableau Software and MySQL Workbench
 
 ##
 
+<h1>Sales</h1>
+
+- <b>Sales volume per month per line and n-1 variation</b>
+
+~~~~sql
+WITH monthly_sales_year AS
+(
+SELECT pl.productLine AS productline, DATE_FORMAT(o.orderDate, "%M") as mois,
+SUM(od.quantityOrdered) AS total_ordered
+FROM productlines AS pl
+  INNER JOIN products AS p
+    ON p.productLine=pl.productLine
+  INNER JOIN orderdetails AS od
+    ON od.productCode=p.productCode
+  INNER JOIN orders AS o
+    ON o.orderNumber=od.orderNumber
+WHERE YEAR(o.orderDate) = YEAR(NOW()) AND MONTH(o.orderDate) <= MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+GROUP BY productline, MONTH(o.orderDate)
+),
+
+monthly_sales_previous_year AS
+(
+SELECT pl.productLine AS productline, DATE_FORMAT(o.orderDate, "%M") as mois,
+SUM(od.quantityOrdered) AS total_ordered
+FROM productlines AS pl
+  INNER JOIN products AS p
+    ON p.productLine=pl.productLine
+  INNER JOIN orderdetails AS od
+    ON od.productCode=p.productCode
+  INNER JOIN orders AS o
+    ON o.orderNumber=od.orderNumber
+WHERE YEAR(o.orderDate) = YEAR(DATE_SUB(NOW(), INTERVAL 1 YEAR)) AND MONTH(o.orderDate) <= MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+GROUP BY productline, MONTH(o.orderDate)
+)
+
+SELECT py.productline, py.mois, py.total_ordered AS total_ordered_previous_year, y.total_ordered AS total_ordered_this_year, 
+    y.total_ordered - py.total_ordered AS variation,
+    ((y.total_ordered - py.total_ordered) / py.total_ordered) * 100 AS rate_of_change
+FROM monthly_sales_previous_year AS py
+LEFT JOIN monthly_sales_year AS y
+    ON y.productline=py.productline AND y.mois=py.mois
+~~~~
+
+<div style="display: inline_block"><br>
+	<img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/volumeventemoislignevariationbis.png?raw=true">
+	<img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/volumeventemoislignevariation.png?raw=true">
+</div>
+
+#
+
+- <b>Top products by country</b>
+
+~~~~sql
+WITH CTE AS
+(
+SELECT C.country AS Country, SUM(OD.quantityOrdered) AS Sales, P.productName AS Product 
+FROM customers C
+	INNER JOIN orders O
+		ON O.customerNumber = C.customerNumber
+	INNER JOIN orderdetails OD
+		ON O.orderNumber = OD.orderNumber
+	INNER JOIN products P
+		ON OD.productCode = P.productCode 
+
+WHERE YEAR(O.orderDate) = YEAR(NOW())
+GROUP BY C.country , P.productName
+)
+
+SELECT * 
+	FROM (
+		SELECT *, RANK() OVER (PARTITION BY Country ORDER BY Sales DESC) AS Rang
+		FROM CTE
+		) AS Classement
+WHERE Classement.Rang =1
+~~~~
+
+<div style="display: inline_block"><br>
+	<img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/topproduitpays.png?raw=true">
+</div>
+
+#
+
+- <b>Customers by country</b>
+
+~~~~sql
+SELECT c.country, COUNT(c.customerNumber) AS total_customers
+FROM customers AS c
+INNER JOIN orders AS o
+	ON o.customerNumber=c.customerNumber
+WHERE YEAR(o.orderDate) = YEAR(NOW())
+GROUP BY country
+ORDER BY total_customers DESC
+~~~~
+
+<div style="display: inline_block"><br>
+	<img align="center" alt="LG-1" src="https://github.com/leonardodasilvasouza/Models-and-Toys/blob/main/nombreclientpays.png?raw=true">
+</div>
+
+#
+
 <h1>Finance</h1>
 
 - <b>Sales revenue for the last two months by country</b>
@@ -88,7 +188,7 @@ ORDER BY to_be_paid DESC;
 ~~~~sql
 WITH turnover2020 AS (
 		SELECT pl.productLine, p.productName, 
-	ROUND(SUM(od.quantityOrdered * od.priceEach), 0) AS turnover2020
+			ROUND(SUM(od.quantityOrdered * od.priceEach), 0) AS turnover2020
 		FROM productlines AS pl
 		INNER JOIN products AS p
 			ON p.productLine=pl.productLine
