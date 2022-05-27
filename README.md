@@ -1,6 +1,6 @@
 # Models-and-Toys
 
-Folowing a Data Analyst Training at Wild Code School, this is the first projet that my colleagues and I have built avec the aim to develop our MySQL and Tableau skills. 
+Folowing a Data Analyst Training at Wild Code School, this is the first projet that my colleagues and I have built avec the aim to develop our MySQL and Tableau skills. We took 3 weeks to build this dashboard. 
 
 <b>1 - Introduction</b> 
 
@@ -20,9 +20,9 @@ For this project we have used Tableau Software and MySQL Workbench
 
 ##
 
-<b>Our Dashboard</b>
+<h1>Our Dashboard Human Resource</h1>
 
-<b>The best sales each month</b>
+- <b>The best sales each month</b>
 
 ~~~~sql
 WITH rank_turnover AS
