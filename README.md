@@ -2,6 +2,8 @@
 
 Following a Data Analyst Training at Wild Code School, this is the first projet that my colleagues and I have built with the aim to develop our MySQL and Tableau skills. We took 3 weeks to build this dashboard. 
 
+Link Tableau Public -> https://public.tableau.com/app/profile/da.silva.souza/viz/Projet1_16575362634360/Overview
+
 <b>1 - Introduction</b> 
 
 With a group of five members, we were commissioned by a fictious company selling models and scale models. This company sent the database with all the information that we could have to develope the project, such as : <i>the list of employees, products, orders and so on</i>. Thus, we were in charge to develop a dashboard which the director of the company can refresh each morning to have the latest information in order to take decision and to manage the company. 
